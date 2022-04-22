@@ -1,19 +1,33 @@
 <%- include('partials/header') %>
 <main id="products">
     <%- include('partials/nav') %>
-    <div class="all-products">
-       <% for(let product of products) { %>
-        <div class="gallery">
-            <img src="/uploads/<%= product.imageURL %>" alt="">
-        </div>
-            <h1><%= product.title %></h1>
-            <h2><%= product.description %></h2>
-            <h2><%= product.price %></h2>
-            <h2><%= product.phonenumber %></h2>
-            <h2><%= product.location %></h2>
-        <% } %>
-
-    </div>
+        <div class="all-products">
+            <% for(let product of products) { %>
+                <div class="each-product">
+                    <div class="gallery">
+                        <img src="/uploads/<%= product.imageURL %>" alt="">
+                    </div>
+                    <section>
+                        <div class="title">
+                            <p>Title:</p><h1><%= product.title %> </h1>
+                        </div>
+                        <div class="description">
+                            <p>Description:</p> <h2><%= product.description %></h2>
+                        </div>
+                        <div class="price">
+                        <p>Price:</p> <h2><%= product.price %>e</h2>
+                        </div>
+                        <div class="phonenumber">
+                        <p>Phone Number:</p>  <h2><%= product.phonenumber %></h2>
+                        </div>
+                        <div class="location">
+                            <p>Location: </p><h2><%= product.location %></h2>
+                        </div>
+                    <input type="submit" value="Delete Product">
+                    </section>
+                </div>
+                <% } %> 
+     </div>
 
 </main>
-    <%- include('partials/footer') %>
+<%- include('partials/footer') %>
