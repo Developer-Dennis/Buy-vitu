@@ -9,7 +9,7 @@ const app = express()
 const upload = multer({ dest: './public/uploads/' })
 
 
-// co
+
 
 
 const connection = mysql.createConnection({
