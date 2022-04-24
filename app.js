@@ -189,6 +189,47 @@ app.post('/add-listing', upload.single('image'), function (req, res, next) {
 
 
 
+app.get('/edit/:id', (req, res) => {
+    if(res.locals.isLoggedIn){
+        connection.query(
+            'SELECT * FROM products WHERE id = ?',
+            [req.params.id, req.session.userId],
+            (error, results) => {
+                res.render('edit-product.ejs', {product:results[0]})
+            } )
+        } 
+           else {
+               res.redirect('/login')
+
+        }   
+})
+
+
+
+
+app.post('/edit/:id', (req, res) => {
+    connection.query(
+        'UPDATE products SET title = ?, description, price = ?, phonenumber = ?, location = ?, imageURL = ? WHERE id= ? AND userId =?',
+        [req.body.title, req.body.description, req.body.price, req.body.phonenumber, req.body.location, req.body.imageURL, req.params.id, req.session.userId],
+        (error, results) => {
+            res.redirect('/products');
+        }
+    )
+})
+
+
+app.post('/delete/:id', (req, res) => {
+    connection.query(
+        'DELETE FROM products WHERE id = ?',
+        [req.params.id],
+        (error, results) => {
+            res.redirect('/products');
+        }
+    )
+})
+
+
+
 
 
 
