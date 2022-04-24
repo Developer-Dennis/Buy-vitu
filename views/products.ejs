@@ -23,7 +23,10 @@
                         <div class="location">
                             <p>Location: </p><h2><%= product.location %></h2>
                         </div>
-                    <input type="submit" value="Delete Product">
+                        <a href="/edit/<%= product.id %>" class="btn">Edit</a>
+                        <form action="/delete/<%= product.id %>" method="post" id="delete-form">
+                            <input type="submit" class="btn"id="btn1" value ="Delete"></a>
+                        </form>
                     </section>
                 </div>
                 <% } %> 
