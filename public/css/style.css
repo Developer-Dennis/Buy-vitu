@@ -141,13 +141,13 @@ footer.row2{
   footer #input{
       padding: 10px;
   }  
-  #products{
+  #add-products{
       padding: 0 auto;
       margin:0 auto;
   }
  
 
-  #products form{
+  #add-products form{
     width: 30%;
     display: flex;
     flex-direction: column;
@@ -158,7 +158,7 @@ footer.row2{
     border-radius: 10px;
   }
  
-  #products form input[type='submit']{
+  #add-products form input[type='submit']{
     background-color: #3db83a;;
     color: #fff;
     border: 1px solid #3db83a;;
@@ -166,7 +166,7 @@ footer.row2{
     margin-top: 10px;
     margin-bottom: 10px;
 }
-#products form input ,label{
+#add-products form input ,label{
     font-size: 20px;
     margin-bottom: 5px;
 }
@@ -183,7 +183,7 @@ footer.row2{
     display: inline-block;
 }
 
-#products .all-products .each-product section  input[type='submit']{
+#products .all-products .each-product section  form input [type='submit']{
     background-color: #3db83a;
     color: #fff;
     border: 1px solid #3db83a;
@@ -202,14 +202,66 @@ footer.row2{
      margin-left: 20px;
      margin-right: 0;
      margin-top: 20px;
-     width: 350px;
-     height: 350px;
+     width: 300px;
+     height: 250px;
     border-radius: 5px;
  }
  #products .all-products .each-product section{
     padding-left: 8px;
-    margin-top: 17px;
-    margin-left: 20px;
+    margin-top: 15px;
+    margin-left: 10px; 
     background-color: #d8d7d7;
+}
+#products .all-products .each-product section p{
+    color: #079704;
+    font-size: 28px;
+    font-weight: bold;
+}
+#products .all-products .each-product section input{
+    background-color:#ff0000;
+    font-size: 21px;
+    color: #f2f2f2;
+    border: 1px solid #ff0000;
+    height: 50px;
+    width: 100px;
+    display: inline;
+}
+#products .all-products .each-product section input:hover{
+    background-color: #961212;
+}
+.editproducts{
+    padding: 0 100px;
+}
+.view-title{
+    padding-top: 25px;
+    text-align: center;
+    color: #079704;
+    margin-bottom: 8px;
+    font-size: 25px;
+}
+.view-title form{
+    background-color: #f2f2f2;
+    margin: 0 auto;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    width: 70%;
+    border: 1px solid #d8d7d7;
+    border-radius: 10px;
+   justify-content: center;
+}
 
+form input[name='title'],form textarea[name='body']{
+    width: 70%;
+    margin-bottom: 12px;
+    font-size: 22px;
+    padding: 10px;
+    border: 1px solid #f2f2f2;
+}
+.editproducts input.btn{
+    margin-bottom: 15px;
+}
+.editproducts input .btn:hover{
+    background-color: #fff;
+    color: #16dada;
 }
