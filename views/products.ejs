@@ -15,7 +15,7 @@
                             <p>Description:</p> <h2><%= product.description %></h2>
                         </div>
                         <div class="price">
-                        <p>Price:</p> <h2><%= product.price %>e</h2>
+                        <p>Price:</p> <h2><%= product.price %></h2>
                         </div>
                         <div class="phonenumber">
                         <p>Phone Number:</p>  <h2><%= product.phonenumber %></h2>
@@ -23,7 +23,8 @@
                         <div class="location">
                             <p>Location: </p><h2><%= product.location %></h2>
                         </div>
-                        <a href="/edit/<%= product.id %>" class="btn">Edit</a>
+                        <a href="/edit/<%= product.id %>" class="btn-edit">Edit</a><br>
+                        <a href="/contact-seller/<%= product.id %>" class="contact-seller">Chat With Seller</a>
                         <form action="/delete/<%= product.id %>" method="post" id="delete-form">
                             <input type="submit" class="btn"id="btn1" value ="Delete"></a>
                         </form>
