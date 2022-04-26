@@ -3,12 +3,27 @@ const mysql = require('mysql')
 const bcrypt = require('bcrypt')
 const multer = require('multer')
 const session = require('express-session')
+const server = require('http').createServer();
+const io = require('socket.io')(server)
+
 
 
 const app = express()
 const upload = multer({ dest: './public/uploads/' })
 
+io.on("connection", function(socket){
+    socket.on('newUser', function(username){
+        socket.broadcast.emit("update", username + "joined the conversation")
+    })
 
+    socket.on('exituser', function(username){
+        socket.broadcast.emit("update", username + "left the conversation")
+    })
+
+    socket.on('newUser', function(username){
+        socket.broadcast.emit("chat",message)
+    })
+})
 
 
 
@@ -24,7 +39,6 @@ const connection = mysql.createConnection({
 app.set('view engine', 'ejs')
 app.use(express.static('public'))
 app.use(express.urlencoded({extended: false}))
-
 
 
 app.use(session({
@@ -192,16 +206,17 @@ app.post('/add-listing', upload.single('image'), function (req, res, next) {
 app.get('/edit/:id', (req, res) => {
     if(res.locals.isLoggedIn){
         connection.query(
-            'SELECT * FROM products WHERE id = ?',
+            'SELECT * FROM products WHERE id = ? and userID = ?',
             [req.params.id, req.session.userId],
             (error, results) => {
+                console.log(results)
                 res.render('edit-product.ejs', {product:results[0]})
             } )
         } 
            else {
                res.redirect('/login')
-
-        }   
+               
+       }   
 })
 
 
@@ -219,13 +234,17 @@ app.post('/edit/:id', (req, res) => {
 
 
 app.post('/delete/:id', (req, res) => {
-    connection.query(
-        'DELETE FROM products WHERE id = ?',
-        [req.params.id],
-        (error, results) => {
-            res.redirect('/products');
-        }
-    )
+    if(res.locals.isLoggedIn){
+        connection.query(
+            'DELETE FROM products WHERE id = ?',
+            [req.params.id],
+            (error, results) => {
+                res.redirect('/products');
+            }
+        )
+    }else {
+        res.redirect('/products');
+    }
 })
 
 
@@ -238,8 +257,6 @@ app.post('/delete/:id', (req, res) => {
 app.get('/contact-seller', (req, res) => {
     res.render('contact-seller.ejs')
 })
-
-
 
 
 
