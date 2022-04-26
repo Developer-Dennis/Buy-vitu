@@ -4,9 +4,10 @@
         <h1 class="view-title">Edit Product</h1>
 
 
-       <form action="/edit/<%= product.id %>" method="post">
+       <form action="/edit<%= product.id %>" method="post">
             <input type="text" name="title"  value ="<%= product.title %>">
-            <textarea name="body"  cols="30" rows="10" value ="<%= product.description %>"></textarea>
+            <input type="number" name="price"  value ="<%= product.price %>">
+            <textarea name="body"  cols="80" rows="10"><%= product.description %></textarea><br>
             <input type="submit" value="Update" class="btn">    
        </form>
     </main>
