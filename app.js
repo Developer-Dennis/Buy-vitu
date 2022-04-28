@@ -3,6 +3,7 @@ const mysql = require('mysql')
 const bcrypt = require('bcrypt')
 const multer = require('multer')
 const session = require('express-session')
+const { title } = require('process')
 const server = require('http').createServer();
 const io = require('socket.io')(server)
 
@@ -20,7 +21,7 @@ io.on("connection", function(socket){
         socket.broadcast.emit("update", username + "left the conversation")
     })
 
-    socket.on('newUser', function(username){
+    socket.on('chat', function(message){
         socket.broadcast.emit("chat",message)
     })
 })
@@ -42,7 +43,7 @@ app.use(express.urlencoded({extended: false}))
 
 
 app.use(session({
-    secret: 'elections',
+    secret: 'Buyvitu',
     resave: 'false',
     saveUninitialized: 'false'
 }))
@@ -140,7 +141,6 @@ app.post('/login',(req,res) => {
                 bcrypt.compare(user.password, results[0].password, (error, isEqual) => {
                     if(isEqual) {
                         req.session.userId = results[0].id
-                        req.session.username = results[0].fullname.split(' ')[0].toLowerCase()
                         // console.log(req.session)
                         res.redirect('/products')
                     } else {
@@ -167,16 +167,6 @@ app.post('/login',(req,res) => {
 
 
 
-app.get('/products', (req, res) => {
-    connection.query(
-        'SELECT * FROM products',
-        (error,results) => {
-            res.render('products.ejs',{products:results})
-        }
-        
-    )
-   
-})
 
 
 
@@ -189,45 +179,99 @@ app.get('/add-listing', (req, res) => {
 
 
 
-app.post('/add-listing', upload.single('image'), function (req, res, next) {
-   connection.query(
-       'INSERT INTO products (title,description,price,phonenumber,location,imageURL) VALUES(?,?,?,?,?,?)',
-       [req.body.title,req.body.description,req.body.price,req.body.phonenumber,req.body.location,req.file.filename],
-       (error, results) => {
-           res.redirect('/products')
-       }
-   )
+app.post('/add-listing', upload.array('product-image', 6), (req, res) => {
+    let filenames = []
+    req.files.forEach(file => filenames.push(file.filename))
+    const product = {
+        title: req.body.title,
+        description: req.body.description,
+        price: Number(req.body.price),
+        phonenumber:req.body.phonenumber,
+        location:req.body.location,
+        filenames: filenames.toString()
+    }
+    console.log(product)
+    connection.query(
+        'INSERT INTO products (title, description, price, phonenumber, location, imageURLs, userID) VALUES (?,?,?,?,?,JSON_ARRAY(?),?)',
+        [product.title, product.description, product.price, product.phonenumber,product.location, product.filenames, req.session.userId],
+        (error, results) => {     
+            if(!error) {
+                console.log('product added successfully')
+                res.redirect('/products')
+            } else {
+                // console.log(error)
+                 res.redirect('/products')
+            }
+        }
+    )
+    
 })
 
+
+
+
+app.get('/products', (req, res) => {
+    connection.query(
+        'SELECT * FROM products WHERE  userID=?',
+        [req.session.userId],
+        (error, products) => {
+            // console.log(error)
+            // const product = {
+            //     title: results[0].title,
+            //     description: results[0].description,
+            //     price: results[0].price,
+            //     phonenumber:results[0].phonenumber,
+            //     location:results[0].location,
+            //     imageURLs: JSON.parse(results[0].imageURLs),
+            //     dateposted: results[0].dateposted,
+            // }
+          
+
+            // console.log(JSON.parse(results[0].imageURLs))
+            // console.log(results[0].imageURLs)
+            console.log(products)
+            res.render('products.ejs', {products: products})
+        }
+    )
+})
 
 
 
 
 app.get('/edit/:id', (req, res) => {
-    if(res.locals.isLoggedIn){
-        connection.query(
-            'SELECT * FROM products WHERE id = ? and userID = ?',
-            [req.params.id, req.session.userId],
-            (error, results) => {
-                console.log(results)
-                res.render('edit-product.ejs', {product:results[0]})
-            } )
-        } 
-           else {
-               res.redirect('/login')
-               
-       }   
+    connection.query(
+        `SELECT * FROM products WHERE id=${parseInt(req.params.id)}`,
+        (error,results)=>{
+            res.render('edit-product.ejs', {product: results[0]})
+        }
+    )
 })
 
 
 
 
-app.post('/edit/:id', (req, res) => {
+app.post('/edit/:id',upload.array('product-image', 6), (req, res) => {
+    let filenames = []
+    req.files.forEach(file => filenames.push(file.filename))
+    const product = {
+        title: req.body.title,
+        description: req.body.description,
+        price: Number(req.body.price),
+        phonenumber: Number(req.body.phonenumber),
+        location:req.body.location,
+        filenames: filenames.join(','),
+    }
+    console.log(product)
     connection.query(
-        'UPDATE products SET title = ?, description, price = ?, phonenumber = ?, location = ?, imageURL = ? WHERE id= ? AND userId =?',
-        [req.body.title, req.body.description, req.body.price, req.body.phonenumber, req.body.location, req.body.imageURL, req.params.id, req.session.userId],
+        `UPDATE  products SET title='${product.title}', description='${product.description}', price=${product.price}, phonenumber=${product.phonenumber}, location='${product.location}', imageURLs=${product.filenames}, userID=${req.session.userId} WHERE id =${Number(req.params.id)}`,
         (error, results) => {
-            res.redirect('/products');
+        
+            if(!error) {
+                console.log('product added successfully')
+                res.redirect('/products')
+            } else {
+                console.log(error)
+            }
         }
     )
 })
