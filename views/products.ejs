@@ -5,7 +5,12 @@
             <% for(let product of products) { %>
                 <div class="each-product">
                     <div class="gallery">
-                        <img src="/uploads/<%= product.imageURL %>" alt="">
+                       <%let images = product.imageURLs.slice(2,product.imageURLs.length-2)%>
+                        <%let pImages=images.split(',') %>
+
+                        <%pImages.forEach(image=>{%>
+                            <img src="/uploads/<%=image%>" alt="">
+                        <%})%>
                     </div>
                     <section>
                         <div class="title">
@@ -23,11 +28,13 @@
                         <div class="location">
                             <p>Location: </p><h2><%= product.location %></h2>
                         </div>
+                        <% if(locals.isLoggedIn) { %>
                         <a href="/edit/<%= product.id %>" class="btn-edit">Edit</a><br>
                         <a href="/contact-seller/<%= product.id %>" class="contact-seller">Chat With Seller</a>
                         <form action="/delete/<%= product.id %>" method="post" id="delete-form">
                             <input type="submit" class="btn"id="btn1" value ="Delete"></a>
                         </form>
+                        <% }%>
                     </section>
                 </div>
                 <% } %> 
