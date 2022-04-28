@@ -4,10 +4,13 @@
         <h1 class="view-title">Edit Product</h1>
 
 
-       <form action="/edit<%= product.id %>" method="post">
+       <form action="/edit/<%= product.id %>" method="post" enctype="multipart/form-data">
             <input type="text" name="title"  value ="<%= product.title %>">
-            <input type="number" name="price"  value ="<%= product.price %>">
-            <textarea name="body"  cols="80" rows="10"><%= product.description %></textarea><br>
+            <input type="text" name="price"  value ="<%= product.price %>">
+            <textarea name="description"  cols="80" rows="10"><%= product.description %></textarea><br>
+            <input type="text" name="phonenumber"  value ="<%= product.phonenumber %>">
+            <input type="text" name="location"  value ="<%= product.location %>">
+            <input type="file" name="product-image" id="" multiple>
             <input type="submit" value="Update" class="btn">    
        </form>
     </main>
