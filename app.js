@@ -12,19 +12,7 @@ const io = require('socket.io')(server)
 const app = express()
 const upload = multer({ dest: './public/uploads/' })
 
-io.on("connection", function(socket){
-    socket.on('newUser', function(username){
-        socket.broadcast.emit("update", username + "joined the conversation")
-    })
 
-    socket.on('exituser', function(username){
-        socket.broadcast.emit("update", username + "left the conversation")
-    })
-
-    socket.on('chat', function(message){
-        socket.broadcast.emit("chat",message)
-    })
-})
 
 
 
@@ -62,9 +50,6 @@ app.use((req,res,next) => {
 
 
 
-app.get('/', (req, res) => {
-    res.render('home.ejs')
-})
 
 
 
@@ -142,7 +127,7 @@ app.post('/login',(req,res) => {
                     if(isEqual) {
                         req.session.userId = results[0].id
                         // console.log(req.session)
-                        res.redirect('/products')
+                        res.redirect('/')
                     } else {
                         let message = 'Email/Password mistmatch.'
                         res.render('login.ejs', {error: true, message: message, user: user})
@@ -171,15 +156,15 @@ app.post('/login',(req,res) => {
 
 
 
-app.get('/add-listing', (req, res) => {
+app.get('/sell', (req, res) => {
    
 
-    res.render('add-listing.ejs')
+    res.render('sell.ejs')
 })
 
 
 
-app.post('/add-listing', upload.array('product-image', 6), (req, res) => {
+app.post('/sell', upload.array('product-image', 6), (req, res) => {
     let filenames = []
     req.files.forEach(file => filenames.push(file.filename))
     const product = {
@@ -197,10 +182,10 @@ app.post('/add-listing', upload.array('product-image', 6), (req, res) => {
         (error, results) => {     
             if(!error) {
                 console.log('product added successfully')
-                res.redirect('/products')
+                res.redirect('/')
             } else {
                 // console.log(error)
-                 res.redirect('/products')
+                 res.redirect('/')
             }
         }
     )
@@ -210,32 +195,21 @@ app.post('/add-listing', upload.array('product-image', 6), (req, res) => {
 
 
 
-app.get('/products', (req, res) => {
+app.get('/', (req, res) => {
     connection.query(
         'SELECT * FROM products WHERE  userID=?',
         [req.session.userId],
         (error, products) => {
-            // console.log(error)
-            // const product = {
-            //     title: results[0].title,
-            //     description: results[0].description,
-            //     price: results[0].price,
-            //     phonenumber:results[0].phonenumber,
-            //     location:results[0].location,
-            //     imageURLs: JSON.parse(results[0].imageURLs),
-            //     dateposted: results[0].dateposted,
-            // }
+            
           
-
-            // console.log(JSON.parse(results[0].imageURLs))
-            // console.log(results[0].imageURLs)
-            console.log(products)
             res.render('products.ejs', {products: products})
         }
     )
 })
 
-
+app.post('/',(res,req)=>{
+    res.render('products.ejs')
+})
 
 
 app.get('/edit/:id', (req, res) => {
@@ -268,7 +242,7 @@ app.post('/edit/:id',upload.array('product-image', 6), (req, res) => {
         
             if(!error) {
                 console.log('product added successfully')
-                res.redirect('/products')
+                res.redirect('/')
             } else {
                 console.log(error)
             }
@@ -283,11 +257,11 @@ app.post('/delete/:id', (req, res) => {
             'DELETE FROM products WHERE id = ?',
             [req.params.id],
             (error, results) => {
-                res.redirect('/products');
+                res.redirect('/');
             }
         )
     }else {
-        res.redirect('/products');
+        res.redirect('/');
     }
 })
 
