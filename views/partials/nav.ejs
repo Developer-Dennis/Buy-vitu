@@ -1,21 +1,42 @@
-<header class="container">
-    <div>
-       <a id="logo" href ="/">Buy Vitu</a>
+<header class="main-menu menu">
+    <div class="container-fluid">
+        <div class="row align-items-center justify-content-center">
+            <div class="col-lg-11">
+                <nav class="navbar navbar-expand-lg navbar-light">
+                    <a class="navbar-brand" href="/">
+                    <img src="/images/logo.jpg" alt="logo" height="130px">
+                    </a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#myNav"aria-control="myNav" aria-expanded="false" aria-label="toggle navigation">
+                    <span class="nav-icon">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                   <div class="collapse navbar-collapse main-menu-item" id="myNav">
+                        <ul class="navbar-nav">
+                            <% if(locals.isLoggedIn) { %>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/">Products</a>
+                                </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/sell">Sell</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/contact-seller"> Contact Seller</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/logout">Logout</a>
+                            </li>
+                            <% } else { %>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/signup">Signup</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/login">Log In</a>
+                            </li>
+                            <% } %>
+                        </ul>
+                   </div>
+                </nav>
+            </div>
+        </div>
     </div>
-    <nav>
-        <ul>
-                    <li class="nav-link"> <a href ="/products"> Products</a></li>
-                <% if(locals.isLoggedIn) { %>
-                    <li class="nav-link"> <a href ="/add-listing"> Add Product</a></li>
-                    <li class="nav-link"><a href ="/contact-seller">Contact Seller</a></li>
-                    <li class="nav-link"><a href ="/logout">Log Out</a></li>
-                <% } else { %>
-                    <li class="nav-link"><a href ="/signup">Sign Up</a></li>
-                    <li class="nav-link"><a href ="/login">Log in</a></li>
-                   
-                <% } %>
-        </ul>
-    </nav>
 </header>
-
-
