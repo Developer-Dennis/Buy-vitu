@@ -1,0 +1,31 @@
+<%- include('partials/header') %>
+<%- include('partials/nav') %>
+<main class="container">
+    <div id="product">
+              
+                        <div class="product-container" style="border:5px;">
+                            <%let images = JSON.parse(product.imageURLs) %>
+                            <% images = images.toString().split(',') %>
+                            <div class="image-slider">
+                                <% images.forEach(image=>{ %>
+                                    <img src="/uploads/<%=image%>" alt="">
+                                <%})%>
+                            </div>
+                            <h2 id="product-title"><%= product.title %></h2>
+                            <p id="product-description" style="font-size:22px; font-weight:600;"><%= product.description %></p>
+                            <p id="product-price"  style="font-size:22px; font-weight:600;"><%= product.price %></p>
+                            <p id="product-phonenumber"  style="font-size:22px; font-weight:600;"><%= product.phonenumber %></p>
+                            <p id="product-location"  style="font-size:22px; font-weight:600;"><%= product.location %></p>
+                            <%if(product.userID==locals.userId){%>
+                            <a href="/edit/<%= product.id %>" class="btn" style="background-color:#383a3a; border:none; color:#fff; padding-bottom: 20px; width: 100px; text-align: center;">Edit</a>
+                            <form action="/delete/<%= product.id %>" method="post" id="delete-form"><br>
+                                <input type="submit" class="btn"id="btn1" value ="Delete" style="background-color:red;border:none; color:#fff; width: 100px; text-align: center;"></a>
+                            </form>
+                            <%}%>
+               
+    </div>
+
+       
+ </main>
+
+<% include('partials/footer') %>
