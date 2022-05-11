@@ -2,16 +2,20 @@ const express = require('express')
 const mysql = require('mysql')
 const bcrypt = require('bcrypt')
 const multer = require('multer')
+var path = require('path')
 const session = require('express-session')
 const { title } = require('process')
-const server = require('http').createServer();
-const io = require('socket.io')(server)
-
-
-
 const app = express()
-const upload = multer({ dest: './public/uploads/' })
+const http = require('http');
+const server = http.createServer(app);
+const { Server } = require("socket.io");
+const { redirect } = require('express/lib/response')
 
+
+
+
+const upload = multer({ dest: './public/uploads/' })
+const io = new Server(server);
 
 
 
@@ -43,7 +47,7 @@ app.use((req,res,next) => {
     } else {
         res.locals.isLoggedIn = true
         res.locals.userId = req.session.userId
-        res.locals.username = req.session.username
+        res.locals.fullname = req.session.fullname
     }
     next()
 })
@@ -157,28 +161,34 @@ app.post('/login',(req,res) => {
 
 
 app.get('/sell', (req, res) => {
-   
+   if(res.locals.isLoggedIn){
+       res.render('sell.ejs')
+   }else {
+       res.redirect('/login')
+   }
 
-    res.render('sell.ejs')
+  
 })
 
 
 
 app.post('/sell', upload.array('product-image', 6), (req, res) => {
+   if(res.locals.isLoggedIn) {
     let filenames = []
     req.files.forEach(file => filenames.push(file.filename))
     const product = {
         title: req.body.title,
         description: req.body.description,
         price: Number(req.body.price),
-        phonenumber:req.body.phonenumber,
+        phonenumber: Number(req.body.phonenumber),
         location:req.body.location,
-        filenames: filenames.toString()
+        filenames: filenames,
+        category: req.body.category
     }
-    console.log(product)
+   
     connection.query(
-        'INSERT INTO products (title, description, price, phonenumber, location, imageURLs, userID) VALUES (?,?,?,?,?,JSON_ARRAY(?),?)',
-        [product.title, product.description, product.price, product.phonenumber,product.location, product.filenames, req.session.userId],
+        'INSERT INTO products (title, description, price, phonenumber, location, imageURLs, userID,category) VALUES (?,?,?,?,?,JSON_ARRAY(?),?,?)',
+        [product.title, product.description, product.price, product.phonenumber,product.location, product.filenames, req.session.userId,product.category],   
         (error, results) => {     
             if(!error) {
                 console.log('product added successfully')
@@ -189,66 +199,171 @@ app.post('/sell', upload.array('product-image', 6), (req, res) => {
             }
         }
     )
+   }else{
+       res.redirect('/login')
+   }
     
 })
 
 
 
-
+// route for all products
 app.get('/', (req, res) => {
     connection.query(
-        'SELECT * FROM products WHERE  userID=?',
-        [req.session.userId],
-        (error, products) => {
-            
-          
-            res.render('products.ejs', {products: products})
+        'SELECT * FROM products',
+        (error, results) => {
+            // const product = {
+            //     title: results.title,
+            //     description: results[0].description,
+            //     price: results[0].price,
+            //     phonenumber: results[0].phonenumber,
+            //     location: results[0].location,
+            //     imageURLs: JSON.parse(results[0].imageURLs),
+            //     dateposted: results[0].dateposted
+               
+            // }
+            // console.log(JSON.parse(results[0].imageURLs))
+            // console.log(results[0].imageURLs)
+            res.render('products.ejs', {products: results})
         }
     )
 })
 
+
+
+
+//route for  a singlle product
+
+
+// app.get('//:id', (req, res) => {
+//     connection.query(
+//         'SELECT * FROM products ',
+//         (error, results) => {
+//             const product = {
+//                 title: results.title,
+//                 description: results[0].description,
+//                 price: results[0].price,
+//                 phonenumber: results[0].phonenumber,
+//                 location: results[0].location,
+//                 imageURLs: JSON.parse(results[0].imageURLs),
+//                 dateposted: results[0].dateposted
+//             }
+//             console.log(JSON.parse(results[0].imageURLs))
+//             console.log(results[0].imageURLs)
+//             res.render('products.ejs', {product: product})
+//         }
+//     )
+// })
+
+
+
+
+
+
+
 app.post('/',(res,req)=>{
-    res.render('products.ejs')
+    if(res.locals.isLoggedIn){
+        res.render('products.ejs')
+    } else {
+        res/redirect('/login')
+    }
+   
 })
+
+
+
+
+
+
+
+// app.get('//:id',(req,res) => {
+//     if(res.locals.isLoggedIn){
+//       connection.query(
+//         'SELECT * FROM products WHERE id = ? AND userId = ?',
+//         [req.params.id, req.session.userId],
+//         (error,results) => {
+//             if(results.length > 0){
+//                 res.render('single-product.ejs',{product: results[0]})
+//             } 
+//       }
+
+//     );
+//     }else {
+//         res.redirect('/login')
+//     }
+// })
+
+app.get('/single-product/:id',(req,res) => {
+    console.log('get here')
+    if(res.locals.isLoggedIn){
+            connection.query(
+                'SELECT * FROM products WHERE id = ? AND userID = ?',
+                [req.params.id, req.session.userId],
+                (error,results) => {
+                    if(results.length > 0){
+                        res.render('single-product.ejs',{product: results[0]})
+                    } 
+            }
+    
+        );
+      
+    }else {
+        res.redirect('/login')
+    }
+})
+
+
 
 
 app.get('/edit/:id', (req, res) => {
-    connection.query(
-        `SELECT * FROM products WHERE id=${parseInt(req.params.id)}`,
-        (error,results)=>{
-            res.render('edit-product.ejs', {product: results[0]})
-        }
-    )
+    if(res.locals.isLoggedIn){
+        connection.query(
+            'SELECT * FROM products WHERE id = ? and userId = ?',
+            [req.params.id, req.session.userId],
+            (error, results) => {
+                res.render('edit-product.ejs', {product:results[0]})
+            } )
+        } 
+           else {
+               res.redirect('/login')
+
+        }   
 })
 
 
-
-
-app.post('/edit/:id',upload.array('product-image', 6), (req, res) => {
-    let filenames = []
-    req.files.forEach(file => filenames.push(file.filename))
-    const product = {
-        title: req.body.title,
-        description: req.body.description,
-        price: Number(req.body.price),
-        phonenumber: Number(req.body.phonenumber),
-        location:req.body.location,
-        filenames: filenames.join(','),
+app.post('/edit/:id', upload.array('product-image', 6), (req, res) => {
+    if(res.locals.isLoggedIn) {
+     let filenames = []
+     req.files.forEach(file => filenames.push(file.filename))
+     const product = {
+         title: req.body.title,
+         description: req.body.description,
+         price: Number(req.body.price),
+         phonenumber: Number(req.body.phonenumber),
+         location:req.body.location,
+         filenames: filenames,
+         category: req.body.category
+     }
+    
+     connection.query( 
+         'UPDATE products SET title = ?, description=?, price = ?, phonenumber = ?, location = ?, imageURLs = JSON_ARRAY(?), userID = ?,category = ?  WHERE id= ?',
+         [product.title, product.description, product.price, product.phonenumber,product.location, product.filenames, req.session.userId,product.category, req.params.id],   
+         (error, results) => {     
+             if(!error) {
+                 console.log('product added successfully')
+                 res.redirect('/')
+             } else {
+                 console.log(error)``
+                  res.redirect('/')
+             }
+         }
+     )
+    }else{
+        res.redirect('/login')
     }
-    console.log(product)
-    connection.query(
-        `UPDATE  products SET title='${product.title}', description='${product.description}', price=${product.price}, phonenumber=${product.phonenumber}, location='${product.location}', imageURLs=${product.filenames}, userID=${req.session.userId} WHERE id =${Number(req.params.id)}`,
-        (error, results) => {
-        
-            if(!error) {
-                console.log('product added successfully')
-                res.redirect('/')
-            } else {
-                console.log(error)
-            }
-        }
-    )
-})
+     
+ })
+ 
 
 
 app.post('/delete/:id', (req, res) => {
@@ -268,11 +383,54 @@ app.post('/delete/:id', (req, res) => {
 
 
 
-
-
-
-
 app.get('/contact-seller', (req, res) => {
+    if(res.locals.isLoggedIn){
+        res.render('contact-seller.ejs');
+    }else {
+        res.redirect('/login')
+    }
+});
+
+
+io.on('connection', (socket) => {
+    console.log('a user connected');
+  });
+
+  io.on('connection', (socket) => {
+    console.log('a user connected');
+    socket.on('disconnect', () => {
+      console.log('user disconnected');
+    });
+  });
+
+
+  io.on('connection', (socket) => {
+    socket.on('chat message', (msg) => {
+      io.emit('chat message', msg);
+    });
+  });
+
+
+
+
+
+
+// app.get('/edit/:id', (req, res) => {
+//     if(res.locals.isLoggedIn) {
+//         connection.query(
+//             `SELECT * FROM products WHERE id=${parseInt(req.params.id)}`,
+//             (error,results)=>{
+//                 res.render('edit-product.ejs', {product: results[0]})
+//             }
+//         )
+//     }
+// })
+
+
+
+
+
+app.post('/contact-seller', (req, res) => {
     res.render('contact-seller.ejs')
 })
 
@@ -287,15 +445,36 @@ app.get('/logout', (req,res) => {
 
 
 
+// app.get('*', (req, res) => {
+//     res.render('404.ejs')
+// })
 
 
 
 
+// ***********PRODUCT CATEGORIES
+app.get('/products', (req,res)=>{
 
+    if(req.query.category){
+      connection.query(
+        `SELECT * FROM products WHERE category = '${req.query.category}' `,
+        (error, results)=>{
+          res.render('products.ejs', {products: results})
+          console.log(results)
+        }
+      )
+    }else{
+      let errorMessage = "Page Not Found "
+      res.render("404.ejs");
+    }
+  })
 
 
 
 const PORT = process.env.PORT || 5000
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server up on PORT ${PORT}`)
 })
+
+
+
