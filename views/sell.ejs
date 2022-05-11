@@ -4,6 +4,17 @@
 
       <form action="/sell" method="POST" enctype="multipart/form-data">
         <h3>Upload Item</h3>
+        <select class="input-el" name="category" id="category" required>
+          <option value="">---Choose Phone Model---</option>
+          <option value="huawei">Huawei</option>
+          <option value="samsung">Samsung</option>
+          <option value="infinix">Infinix</option>
+          <option value="tecno">Teno</option>
+          <option value="redmi">Redmi</option>
+          <option value="realme">Realme</option>
+          <option value="iphone">Iphone</option>
+          <option value="oppo">Oppo</option>
+      </select>
         <label>Title:</label>
         <input type="text" name="title">
         <label>Description:</label>
