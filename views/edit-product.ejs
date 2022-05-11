@@ -1,18 +1,31 @@
 <%- include('partials/header') %>
+<%- include('partials/nav') %>
+    <main class="sell">
+     
 
-    <main class="editproducts">
-        <h1 class="view-title">Edit Product</h1>
-
-
+    
        <form action="/edit/<%= product.id %>" method="post" enctype="multipart/form-data">
+        <h1 class="view-title" style="text-align:center; padding-top:5px; padding-bottom: 5px; font-size: 28px;">Edit Product</h1>
+        <select class="input-el" name="category" id="category" required>
+            <option value="">---Choose Phone Model---</option>
+            <option value="huawei">Huawei</option>
+            <option value="samsung">Samsung</option>
+            <option value="infinix">Infinix</option>
+            <option value="tecno">Teno</option>
+            <option value="redmi">Redmi</option>
+            <option value="realme">Realme</option>
+            <option value="iphone">Iphone</option>
+            <option value="oppo">Oppo</option>
+        </select>
             <input type="text" name="title"  value ="<%= product.title %>">
             <input type="text" name="price"  value ="<%= product.price %>">
             <textarea name="description"  cols="80" rows="10"><%= product.description %></textarea><br>
             <input type="text" name="phonenumber"  value ="<%= product.phonenumber %>">
             <input type="text" name="location"  value ="<%= product.location %>">
             <input type="file" name="product-image" id="" multiple>
-            <input type="submit" value="Update" class="btn">    
+            <input type="submit" value="Update" class="btn">   
        </form>
+    
     </main>
 
 
