@@ -212,6 +212,8 @@ app.get('/', (req, res) => {
     connection.query(
         'SELECT * FROM products',
         (error, results) => {
+            let products=[]
+            products=results
             // const product = {
             //     title: results.title,
             //     description: results[0].description,
@@ -224,7 +226,7 @@ app.get('/', (req, res) => {
             // }
             // console.log(JSON.parse(results[0].imageURLs))
             // console.log(results[0].imageURLs)
-            res.render('products.ejs', {products: results})
+            res.render('products.ejs', {products: products})
         }
     )
 })
@@ -295,10 +297,10 @@ app.post('/',(res,req)=>{
 
 app.get('/single-product/:id',(req,res) => {
     console.log('get here')
-    if(res.locals.isLoggedIn){
+   
             connection.query(
-                'SELECT * FROM products WHERE id = ? AND userID = ?',
-                [req.params.id, req.session.userId],
+                'SELECT * FROM products WHERE id = ?',
+                [req.params.id],
                 (error,results) => {
                     if(results.length > 0){
                         res.render('single-product.ejs',{product: results[0]})
@@ -306,10 +308,7 @@ app.get('/single-product/:id',(req,res) => {
             }
     
         );
-      
-    }else {
-        res.redirect('/login')
-    }
+  
 })
 
 
@@ -383,7 +382,7 @@ app.post('/delete/:id', (req, res) => {
 
 
 
-app.get('/contact-seller', (req, res) => {
+app.get('/contact-seller/:id', (req, res) => {
     if(res.locals.isLoggedIn){
         res.render('contact-seller.ejs');
     }else {
@@ -430,7 +429,7 @@ io.on('connection', (socket) => {
 
 
 
-app.post('/contact-seller', (req, res) => {
+app.post('/contact-seller/:id', (req, res) => {
     res.render('contact-seller.ejs')
 })
 
